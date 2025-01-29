@@ -1,4 +1,48 @@
 -- init.lua
+-- Lazy.nvim setup
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable", -- latest stable release
+    lazypath,
+  })
+end
+vim.opt.rtp:prepend(lazypath)
+
+require("lazy").setup({
+  -- Color scheme
+  { "morhetz/gruvbox" },
+  -- LSP configuration
+  { "neovim/nvim-lspconfig" },
+  -- Common utilities
+  { "nvim-lua/plenary.nvim" },
+  -- Autocompletion plugin
+  { "hrsh7th/nvim-cmp" },
+  -- VSCode-like pictograms
+  { "onsails/lspkind-nvim" },
+  -- Snippets plugin
+  { "L3MON4D3/LuaSnip" },
+  { "dense-analysis/ale" },
+  -- Forked version of ALE temporarily
+  { "kevinquinnyo/ale", branch = "phpstan-memory-limit-option" }, -- Corrected URL
+
+  -- Run tests in Vim
+  { "janko/vim-test" },
+  -- PHP code introspection and more
+  { "phpactor/phpactor", run = "composer install --no-dev -n" },
+  -- Syntax highlighting
+  { "nvim-treesitter/nvim-treesitter" },
+  -- Statusline plugin
+  { "feline-nvim/feline.nvim" },
+  -- Fuzzy file finder
+  { "ctrlpvim/ctrlp.vim" },
+  { "github/copilot.vim", url = "git@github.com:github/copilot.vim.git" }
+})
+
 -- Check if Composer is installed
 local function check_composer()
   local handle = io.popen("composer --version")
@@ -11,51 +55,6 @@ end
 
 -- Call the check_composer function
 check_composer()
-
--- Bootstrap packer.nvim if it's not already installed
-local ensure_packer = function()
-  local fn = vim.fn
-  local install_path = fn.stdpath('data')..'/site/pack/packer/start/packer.nvim'
-  if fn.empty(fn.glob(install_path)) > 0 then
-    fn.system({'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path})
-    vim.cmd [[packadd packer.nvim]]
-    return true
-  end
-  return false
-end
-
-local packer_bootstrap = ensure_packer()
-
--- Load plugins
-require('packer').startup(function(use)
-  use 'wbthomason/packer.nvim'         -- Packer can manage itself
-  use 'morhetz/gruvbox'                -- Color scheme
-  use 'neovim/nvim-lspconfig'          -- LSP configuration
-  use 'nvim-lua/plenary.nvim'          -- Common utilities
-  use 'hrsh7th/nvim-cmp'               -- Autocompletion plugin
-  use 'onsails/lspkind-nvim'           -- VSCode-like pictograms
-  use 'L3MON4D3/LuaSnip'               -- Snippets plugin
-  --use 'dense-analysis/ale'             -- Asynchronous Lint Engine
-  -- use our forked version of ale to fix phpstan memory-limit option it's at /Users/kevin/dev/ale
-  use {'~/dev/ale'}                     -- Forked version temporarily
-  use 'janko/vim-test'                 -- Run tests in Vim
-  use {
-  'phpactor/phpactor',
-    run = 'composer install --no-dev -n'
-  } -- PHP code introspection and more
-  use {
-    'nvim-treesitter/nvim-treesitter',
-    run = ':TSUpdate'
-  } -- syntax highlighting
-  use 'preservim/nerdtree'             -- File tree explorer
-  use 'feline-nvim/feline.nvim'        -- Statusline plugin
-  use 'ctrlpvim/ctrlp.vim'             -- Fuzzy file finder
-
-  -- Automatically set up your configuration after cloning packer.nvim
-  if packer_bootstrap then
-    require('packer').sync()
-  end
-end)
 
 -- General settings
 vim.opt.number = true
@@ -76,9 +75,6 @@ vim.api.nvim_set_keymap('n', '<S-Tab>', ':bprev<CR>', { noremap = true })
 vim.api.nvim_set_keymap('n', 'W', ':w<CR>', { noremap = true })
 vim.api.nvim_set_keymap('n', 'Wq', ':wq<CR>', { noremap = true })
 
--- hardmode
---vim.opt.hardmode = true
-
 -- Enable true color support
 vim.opt.termguicolors = true
 
@@ -89,27 +85,14 @@ vim.opt.background = "dark"
 -- ALE configuration
 vim.g.ale_php_phpcs_executable = 'phpcs'
 vim.g.ale_php_phpstan_executable = 'phpstan'
--- todo: we can't use this until https://github.com/dense-analysis/ale/pull/4900 lands
 vim.g.ale_php_phpstan_memory_limit = '-1'
---vim.g.ale_php_phpmd_executable = 'phpmd'
---
 vim.g.ale_linters = { php = {'php', 'phpcs', 'phpstan'} }
---vim.g.ale_fixers = { php = {'php_cs_fixer'} }
-
--- Use a custom phpcbf wrapper script
-vim.g.ale_php_phpcbf_executable = '/Users/kevin/bin/phpcbf-wrapper.sh'
-
--- Declare it as 'use global' even though it's a custom path
---vim.g.ale_php_phpcbf_use_global = 1
-
--- Define ALE fixers
 vim.g.ale_fixers = {
     ['*'] = { 'remove_trailing_lines', 'trim_whitespace' },
     php = { 'phpcbf' },
 }
-
--- Enable auto-fixing on save
 vim.g.ale_fix_on_save = 1
+vim.g.ale_php_phpcbf_executable = '/Users/kevin/bin/phpcbf-wrapper.sh'
 
 -- Shortcut for showing full ALE lint error message
 vim.api.nvim_set_keymap('n', '<leader>ee', ':ALEDetail<CR>', { noremap = true, silent = true })
@@ -125,44 +108,29 @@ vim.api.nvim_set_keymap('n', '<Leader>o', ':PhpactorGotoDefinition<CR>', { norem
 vim.api.nvim_set_keymap('n', '<Leader>u', ':PhpactorUseAdd<CR>', { noremap = true, silent = true })
 
 -- CtrlP key mappings
-vim.g.ctrlp_map = '<c-f>'
+--vim.g.ctrlp_map = '<c-f>'
+-- Manually set CtrlP key mapping
+vim.api.nvim_set_keymap('n', '<C-f>', ':CtrlP<CR>', { noremap = true, silent = true })
 vim.g.ctrlp_cmd = 'CtrlP'
---vim.g.ctrlp_custom_ignore = {
---  dir = { '.git', 'node_modules', 'dist' },
---  file = { '*.min.js', '*.min.css' }
---}
 vim.g.ctrlp_max_depth = 50
 vim.g.ctrlp_cache_dir = vim.fn.expand("$HOME") .. "/.cache/ctrlp"
+
 
 if vim.fn.executable("ag") == 1 then
   vim.g.ctrlp_user_command = "ag %s -l --nocolor -g \"\""
 end
-
 
 -- Feline configuration
 require('feline').setup()
 
 -- Treesitter configuration
 require'nvim-treesitter.configs'.setup {
-  -- A list of parser names, or "all"
-  ensure_installed = { "c", "lua", "python", "javascript", "html", "css", "php", "go", "rust" },
-
-  -- Install parsers synchronously (only applied to `ensure_installed`)
+  ensure_installed = { "c", "python", "javascript", "html", "css", "php", "go", "rust" },
   sync_install = false,
-
-  -- Automatically install missing parsers when entering buffer
   auto_install = true,
-
   highlight = {
-    -- `false` will disable the whole extension
     enable = true,
-
-    -- list of language that will be disabled
     disable = { },
-
-    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-    -- Using this option may slow down your editor, and you may see some duplicate highlights.
     additional_vim_regex_highlighting = false,
   },
 }
