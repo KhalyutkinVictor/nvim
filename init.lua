@@ -93,7 +93,7 @@ vim.g.ale_php_phpstan_executable = 'phpstan'
 vim.g.ale_php_phpstan_memory_limit = '-1'
 --vim.g.ale_php_phpmd_executable = 'phpmd'
 --
-vim.g.ale_linters = { php = {'phpcs', 'phpstan'} }
+vim.g.ale_linters = { php = {'php', 'phpcs', 'phpstan'} }
 --vim.g.ale_fixers = { php = {'php_cs_fixer'} }
 
 -- Use a custom phpcbf wrapper script
