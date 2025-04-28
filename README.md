@@ -1,9 +1,6 @@
 # Neovim for PHP developers
 This is my current neovim config.
 
-**NOTE**: see v2 branch (work in progress) for an updated (and simpler?) version of this setup
-
-
 This is a general purpose neovim setup in some ways, however it's heavily geared toward PHP development because that's what pays the bills right now. That said, it works fine when I dabble in other languages, and I'm always adding support there.
 
 This is as close to a "poor man's PhpStorm" as I can get it right now, and it works very well for me.
