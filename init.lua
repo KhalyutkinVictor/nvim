@@ -160,7 +160,12 @@ require("lazy").setup({
       })
 
       local capabilities = lsp.default_capabilities()
+      -- php ls
       require("lspconfig").phpactor.setup({
+        capabilities = capabilities,
+      })
+      -- js ts ls
+      require("lspconfig").ts_ls.setup({
         capabilities = capabilities,
       })
     end,
@@ -320,6 +325,7 @@ require("lazy").setup({
       require("inc_rename").setup()
     end,
   },
+  -- database manager
   {
     "kndndrj/nvim-dbee",
     dependencies = {
@@ -335,6 +341,22 @@ require("lazy").setup({
       require("dbee").setup(--[[optional config]])
     end,
   },
+  -- mason
+  {
+    "williamboman/mason.nvim", config = function()
+      require("mason").setup()
+    end
+  },
+  {
+    "williamboman/mason-lspconfig.nvim",
+    dependencies = { "williamboman/mason.nvim" },
+    config = function()
+      require("mason-lspconfig").setup({
+        automatic_installation = true,
+      })
+    end
+  },
+  { "jose-elias-alvarez/typescript.nvim" },
 })
 
 -- Check if     Composer is installed
@@ -517,3 +539,8 @@ vim.keymap.set('n', '<leader>f', function()
   end
   api.tree.find_file()  -- Focus on the current file
 end, { noremap = true, silent = true })
+
+-- Go to definition via lsp command
+vim.api.nvim_create_user_command('GoDef', function()
+  vim.lsp.buf.definition()
+end, {})
